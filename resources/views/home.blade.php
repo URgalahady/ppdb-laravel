@@ -118,7 +118,7 @@
                     <div class="program-bg bg-1"></div>
                     
                     <div class="program-image">
-                        <img src="{{ asset('img/baskett.jpeg') }}" alt="basket" style="width: 100%; height: 400px; object-fit: cover;">
+                        <img src="{{ asset('img/baskett.jpeg') }}" alt="Robotik" style="width: 100%; height: 400px; object-fit: cover;">
                     </div>
                     <div class="program-content text-center">
                         <h4>Basket</h4>

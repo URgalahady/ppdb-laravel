@@ -10,7 +10,7 @@ class Pendaftaran extends Model
 
 protected $fillable = [
     'nama', 'tempat_lahir', 'tanggal_lahir', 'asal_sekolah',
-    'jurusan_id', 'foto', 'ijazah', 'akta', 'user_id', 'status'
+    'jurusan_id', 'foto', 'ijazah', 'akta', 'user_id', 'status','tahap'
 ];
 
 
@@ -21,6 +21,12 @@ protected $fillable = [
 public function jurusan()
 {
     return $this->belongsTo(Jurusan::class);
+}
+// Model Pendaftaran
+public function updateTahap($tahap)
+{
+    $this->tahap = $tahap;
+    $this->save();
 }
 
 }

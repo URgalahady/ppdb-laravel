@@ -35,6 +35,8 @@
                             <li><a href="{{ url('/') }}">Beranda</a></li>
                             <li><a href="{{ route('about') }}">Tentang Sekolah</a></li>
                             <li><a href="{{ route('prestasi') }}">Prestasi</a></li>
+                            <li><a href="{{ route('profile') }}">Profil</a></li>
+                            
                         </ul>
                     </nav>
 

@@ -33,6 +33,7 @@
                             <th>Asal Sekolah</th>
                             <td>: {{ $pendaftaran->asal_sekolah }}</td>
                         </tr>
+                        
                     </table>
 
                     <hr>
@@ -50,8 +51,28 @@
                                 <i class="fas fa-file-pdf me-1"></i> Lihat Akta
                             </a>
                         </div>
+                    
                     </div>
                 </div>
+<form action="{{ url('/pendaftaran/' . $pendaftaran->id . '/update-tahap') }}" method="POST">
+    @csrf
+    @method('PUT')
+
+    <div class="form-group mb-3">
+        <label for="tahap">Pilih Tahap:</label>
+        <select name="tahap" id="tahap" class="form-select">
+            <option value="administrasi" {{ $pendaftaran->tahap == 'administrasi' ? 'selected' : '' }}>Administrasi</option>
+            <option value="tes_akademik" {{ $pendaftaran->tahap == 'tes_akademik' ? 'selected' : '' }}>Tes Akademik</option>
+            <option value="wawancara" {{ $pendaftaran->tahap == 'wawancara' ? 'selected' : '' }}>Wawancara</option>
+            <option value="selesai" {{ $pendaftaran->tahap == 'selesai' ? 'selected' : '' }}>Selesai</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Simpan Tahap</button>
+</form>
+
+
+
             </div>
         </div>
 

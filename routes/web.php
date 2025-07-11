@@ -52,4 +52,26 @@ Route::get('/prestasi', function () {
 Route::get('/tracking', [PendaftaranController::class, 'tracking'])->name('formulir.tracking');
 
 // Route admin mengubah tahap
+Route::put('/pendaftaran/{id}/update-tahap', [PendaftaranAdminController::class, 'updateTahap'])->name('admin.pendaftaran.updateTahap');
+
+use App\Http\Controllers\ProfileController;
+
+Route::middleware('auth')->group(function () {
+    // Route ke profile
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+
+    // Route untuk form pendaftaran
+    Route::get('/form', [PendaftaranController::class, 'create'])->name('form.create');
+    Route::post('/form', [PendaftaranController::class, 'store'])->name('form.store');
+});
+
+Route::middleware(['auth'])->get('/home', function () {
+    // Periksa apakah pengguna sudah terdaftar
+    if (!Auth::user()->pendaftaran || !Auth::user()->pendaftaran->is_registered) {
+        // Jika belum, arahkan ke halaman profile untuk melengkapi form
+        return redirect()->route('profile');
+    }
+
+    return view('home'); // Halaman home setelah pendaftaran selesai
+})->name('home');
 Route::post('/admin/pendaftaran/{id}/tahap', [PendaftaranController::class, 'updateTahap'])->name('admin.pendaftaran.updateTahap');

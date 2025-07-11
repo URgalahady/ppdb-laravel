@@ -9,21 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+  public function up(): void
 {
     Schema::table('pendaftarans', function (Blueprint $table) {
-        $table->string('tahap')->default('administrasi');
+        $table->enum('tahap', ['belum', 'administrasi', 'tes_akademik', 'wawancara', 'selesai'])->default('belum');
     });
 }
 
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('pendaftarans', function (Blueprint $table) {
-            //
-        });
-    }
+public function down(): void
+{
+    Schema::table('pendaftarans', function (Blueprint $table) {
+        $table->dropColumn('tahap');
+    });
+}
 };

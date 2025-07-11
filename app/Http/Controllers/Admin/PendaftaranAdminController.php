@@ -33,7 +33,19 @@ class PendaftaranAdminController extends Controller
         // Redirect kembali dengan pesan sukses
         return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran berhasil dihapus.');
     }
-    
+    public function updateTahap(Request $request, $id)
+{
+    $request->validate([
+        'tahap' => 'required|in:belum,administrasi,tes_akademik,wawancara,selesai'
+    ]);
+
+    $pendaftaran = \App\Models\Pendaftaran::findOrFail($id);
+    $pendaftaran->tahap = $request->tahap;
+    $pendaftaran->save();
+
+    return redirect()->route('admin.pendaftaran.show', $id)->with('success', 'Tahap pendaftaran berhasil diperbarui.');
+}
+
 }
 
  
