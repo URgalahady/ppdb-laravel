@@ -9,24 +9,36 @@ class Pendaftaran extends Model
 
 
 protected $fillable = [
-    'nama', 'tempat_lahir', 'tanggal_lahir', 'asal_sekolah',
-    'jurusan_id', 'foto', 'ijazah', 'akta', 'user_id', 'status','tahap'
+    'user_id',
+    'gelombang_id', 
+    'jurusan_id',
+    'nama',
+    'tempat_lahir',
+    'tanggal_lahir',
+    'asal_sekolah',
+    'foto',
+    'ijazah',
+    'akta',
+    'status',
+    'tahap'
 ];
 
-
-  public function user() {
+// Relasi ke user
+public function user()
+{
     return $this->belongsTo(User::class);
-    
 }
+
+// Relasi ke gelombang
+public function gelombang()
+{
+    return $this->belongsTo(Gelombang::class);
+}
+
+// Relasi ke jurusan
 public function jurusan()
 {
     return $this->belongsTo(Jurusan::class);
-}
-// Model Pendaftaran
-public function updateTahap($tahap)
-{
-    $this->tahap = $tahap;
-    $this->save();
 }
 
 }

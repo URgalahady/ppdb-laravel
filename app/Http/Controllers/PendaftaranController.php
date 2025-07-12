@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pendaftaran;
 use App\Models\Jurusan;
+use App\Models\Gelombang;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,12 +16,18 @@ class PendaftaranController extends Controller
     {
         // Cek apakah user sudah mendaftar
         if (auth()->user()->pendaftaran) {
-            return redirect()->route('formulir.show'); // Jika sudah mendaftar, langsung ke halaman show
+            return redirect()->route('formulir.show');
+        }
+
+        // Cek apakah ada gelombang aktif
+        $gelombangAktif = Gelombang::where('is_active', true)->first();
+        if (!$gelombangAktif) {
+            return redirect()->route('home')->with('error', 'Tidak ada gelombang pendaftaran yang aktif saat ini.');
         }
 
         // Ambil jurusan yang belum penuh
         $jurusans = Jurusan::where('penuh', false)->get();
-        return view('pendaftaran.form', compact('jurusans'));
+        return view('pendaftaran.form', compact('jurusans', 'gelombangAktif'));
     }
 
     // Menyimpan data pendaftaran baru
@@ -33,10 +40,25 @@ class PendaftaranController extends Controller
             'tanggal_lahir' => 'required|date',
             'asal_sekolah' => 'required|string|max:255',
             'jurusan_id' => 'required|exists:jurusans,id',
+            'gelombang_id' => 'required|exists:gelombangs,id',
             'foto' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'ijazah' => 'required|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
             'akta' => 'required|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
+
+        // Cek gelombang aktif
+        $gelombang = Gelombang::findOrFail($request->gelombang_id);
+        if (!$gelombang->is_active) {
+            return back()->with('error', 'Gelombang pendaftaran tidak aktif.');
+        }
+
+        // Cek apakah pendaftaran sudah pernah dilakukan di gelombang ini
+        $existingPendaftaran = Pendaftaran::where('user_id', auth()->id())
+                                        ->where('gelombang_id', $gelombang->id)
+                                        ->first();
+        if ($existingPendaftaran) {
+            return back()->with('error', 'Anda sudah terdaftar di gelombang ini.');
+        }
 
         // Ambil data user dan jurusan
         $user = auth()->user();
@@ -50,9 +72,10 @@ class PendaftaranController extends Controller
         // Simpan data pendaftaran
         $data = $request->all();
         $data['user_id'] = $user->id;
-        $data['status'] = 'menunggu'; // Status pendaftaran masih menunggu
+        $data['status'] = 'menunggu';
+        $data['tahap'] = 'belum';
 
-        // Menyimpan file foto, ijazah, dan akta ke storage
+        // Menyimpan file
         $data['foto'] = $request->file('foto')->store('uploads/foto', 'public');
         $data['ijazah'] = $request->file('ijazah')->store('uploads/ijazah', 'public');
         $data['akta'] = $request->file('akta')->store('uploads/akta', 'public');
@@ -63,7 +86,7 @@ class PendaftaranController extends Controller
         // Update kuota jurusan
         $jurusan->kuota -= 1;
         if ($jurusan->kuota <= 0) {
-            $jurusan->penuh = true; // Tandai jurusan penuh jika kuota habis
+            $jurusan->penuh = true;
         }
         $jurusan->save();
 
@@ -71,26 +94,25 @@ class PendaftaranController extends Controller
     }
 
     // Menampilkan data pendaftaran user
-   public function show()
-{
-    $data = auth()->user()->pendaftaran;
+    public function show()
+    {
+        $data = auth()->user()->pendaftaran;
 
-    // Jika belum ada data pendaftaran, arahkan ke form
-    if (!$data) {
-        return redirect()->route('formulir.create')->with('info', 'Anda belum mengisi formulir pendaftaran.');
+        if (!$data) {
+            return redirect()->route('formulir.create')->with('info', 'Anda belum mengisi formulir pendaftaran.');
+        }
+
+        $isRegistered = true;
+        $gelombang = $data->gelombang;
+
+        return view('pendaftaran.show', compact('data', 'isRegistered', 'gelombang'));
     }
-
-    $isRegistered = true; // karena show() hanya dipanggil jika sudah daftar
-
-    return view('pendaftaran.show', compact('data', 'isRegistered'));
-}
 
     // Form edit pendaftaran
     public function edit()
     {
         $pendaftaran = Auth::user()->pendaftaran;
 
-        // Jika tidak ada pendaftaran, arahkan ke halaman formulir
         if (!$pendaftaran) {
             return redirect()->route('formulir.create')->with('error', 'Anda belum mengisi formulir pendaftaran.');
         }
@@ -100,10 +122,15 @@ class PendaftaranController extends Controller
             return redirect()->route('formulir.show')->with('error', 'Data tidak dapat diedit karena sudah diterima.');
         }
 
-        // Ambil jurusan yang tersedia untuk pengeditan (termasuk jurusan yang sudah dipilih)
-        $jurusans = Jurusan::where('penuh', false)->orWhere('id', $pendaftaran->jurusan_id)->get();
+        // Jika gelombang sudah berakhir, tidak bisa edit
+        if ($pendaftaran->gelombang->tanggal_berakhir < now()) {
+            return redirect()->route('formulir.show')->with('error', 'Tidak dapat mengedit data karena gelombang pendaftaran sudah berakhir.');
+        }
 
-        return view('pendaftaran.edit', compact('pendaftaran', 'jurusans'));
+        $jurusans = Jurusan::where('penuh', false)->orWhere('id', $pendaftaran->jurusan_id)->get();
+        $gelombangAktif = $pendaftaran->gelombang;
+
+        return view('pendaftaran.edit', compact('pendaftaran', 'jurusans', 'gelombangAktif'));
     }
 
     // Menyimpan perubahan pendaftaran
@@ -118,6 +145,11 @@ class PendaftaranController extends Controller
         // Jika status sudah diterima, data tidak bisa diubah
         if ($pendaftaran->status === 'diterima') {
             return redirect()->route('formulir.show')->with('error', 'Data tidak dapat diupdate karena sudah diterima.');
+        }
+
+        // Jika gelombang sudah berakhir, tidak bisa edit
+        if ($pendaftaran->gelombang->tanggal_berakhir < now()) {
+            return redirect()->route('formulir.show')->with('error', 'Tidak dapat mengupdate data karena gelombang pendaftaran sudah berakhir.');
         }
 
         // Validasi input
@@ -173,10 +205,42 @@ class PendaftaranController extends Controller
             $validatedData['akta'] = $request->file('akta')->store('uploads/akta', 'public');
         }
 
-        // Update data pendaftaran
         $pendaftaran->update($validatedData);
 
         return redirect()->route('formulir.show')->with('success', 'Data pendaftaran berhasil diperbarui!');
+    }
+
+    // Pendaftaran ulang untuk siswa yang ditolak
+    public function daftarUlang()
+    {
+        $pendaftaranLama = Auth::user()->pendaftaran()
+            ->where('status', 'ditolak')
+            ->where('bisa_daftar_ulang', true)
+            ->latest()
+            ->first();
+
+        if (!$pendaftaranLama) {
+            return redirect()->route('formulir.show')->with('error', 'Anda tidak bisa mendaftar ulang.');
+        }
+
+        // Cek gelombang aktif
+        $gelombangAktif = Gelombang::where('is_active', true)->first();
+        if (!$gelombangAktif) {
+            return redirect()->route('formulir.show')->with('error', 'Tidak ada gelombang aktif untuk pendaftaran ulang.');
+        }
+
+        // Buat pendaftaran baru
+        $pendaftaranBaru = $pendaftaranLama->replicate();
+        $pendaftaranBaru->gelombang_id = $gelombangAktif->id;
+        $pendaftaranBaru->status = 'menunggu';
+        $pendaftaranBaru->tahap = 'belum';
+        $pendaftaranBaru->bisa_daftar_ulang = false;
+        $pendaftaranBaru->save();
+
+        // Update status pendaftaran lama
+        $pendaftaranLama->update(['bisa_daftar_ulang' => false]);
+
+        return redirect()->route('formulir.show')->with('success', 'Pendaftaran ulang berhasil!');
     }
 
     // Admin memperbarui status pendaftaran
@@ -187,6 +251,14 @@ class PendaftaranController extends Controller
         ]);
 
         $pendaftaran = Pendaftaran::findOrFail($id);
+        
+        // Jika status ditolak, set bisa_daftar_ulang
+        if ($request->status == 'ditolak') {
+            $pendaftaran->bisa_daftar_ulang = true;
+        } else {
+            $pendaftaran->bisa_daftar_ulang = false;
+        }
+
         $pendaftaran->status = $request->status;
         $pendaftaran->save();
 
@@ -196,28 +268,27 @@ class PendaftaranController extends Controller
     // Menampilkan semua data pendaftaran (admin)
     public function index()
     {
-        // Menampilkan semua data pendaftaran untuk admin
-        $pendaftarans = Pendaftaran::with('jurusan', 'user')->latest()->get();
+        $pendaftarans = Pendaftaran::with('jurusan', 'user', 'gelombang')->latest()->get();
         return view('admin.pendaftaran.index', compact('pendaftarans'));
     }
 
     // Menampilkan tracking status pendaftaran
-  public function tracking()
-{
-    $data = auth()->user()->pendaftaran;
+    public function tracking()
+    {
+        $data = auth()->user()->pendaftaran;
 
-    if (!$data) {
-        return redirect()->route('formulir.create')->with('info', 'Silakan isi formulir terlebih dahulu.');
+        if (!$data) {
+            return redirect()->route('formulir.create')->with('info', 'Silakan isi formulir terlebih dahulu.');
+        }
+
+        $status = $data->status ?? 'belum_mendaftar';
+        $gelombang = $data->gelombang;
+
+        return view('pendaftaran.tracking', compact('data', 'status', 'gelombang'));
     }
 
-    $status = $data->status ?? 'belum_mendaftar';
-    
-
-    return view('pendaftaran.tracking', compact('data', 'status'));
-}
-
     // Update tahap pendaftaran
-     public function updateTahap(Request $request, $id)
+    public function updateTahap(Request $request, $id)
     {
         $request->validate([
             'tahap' => 'required|in:belum,administrasi,tes_akademik,wawancara,selesai'

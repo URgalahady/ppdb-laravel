@@ -1,107 +1,91 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            {{-- Bagian untuk Menampilkan Notifikasi --}}
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            @if(session('info'))
-                <div class="alert alert-info alert-dismissible fade show" role="alert">
-                    <i class="fas fa-info-circle me-2"></i> {{ session('info') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            {{-- Card untuk Menampilkan Profil Pendaftaran --}}
-            <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-header bg-primary text-white rounded-top">
-                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i> Profil Pendaftaran</h5>
-                </div>
-                <div class="card-body">
-                    {{-- Tampilkan jika user sudah mendaftar --}}
-                    @if($isRegistered)
-                        <table class="table table-striped table-bordered">
-                            <tr>
-                                <th class="col-4">Nama Lengkap</th>
-                                <td>{{ $data->nama }}</td>
-                            </tr>
-                            <tr>
-                                <th>Tempat, Tanggal Lahir</th>
-                                <td>{{ $data->tempat_lahir }}, {{ \Carbon\Carbon::parse($data->tanggal_lahir)->translatedFormat('d F Y') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Jurusan Pilihan</th>
-                                <td>{{ $data->jurusan ? $data->jurusan->nama_jurusan : 'Belum dipilih' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Asal Sekolah</th>
-                                <td>{{ $data->asal_sekolah }}</td>
-                            </tr>
-                            <tr>
-                                <th>Pas Foto</th>
-                                <td>
-                                    <img src="{{ asset('storage/' . $data->foto) }}" alt="Pas Foto" class="img-fluid rounded-circle shadow" width="150">
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Ijazah</th>
-                                <td>
-                                    <a href="{{ asset('storage/' . $data->ijazah) }}" class="btn btn-outline-info btn-sm" target="_blank">
-                                        <i class="fas fa-file-pdf me-2"></i> Lihat Ijazah
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Akta Kelahiran</th>
-                                <td>
-                                    <a href="{{ asset('storage/' . $data->akta) }}" class="btn btn-outline-success btn-sm" target="_blank">
-                                        <i class="fas fa-file-pdf me-2"></i> Lihat Akta
-                                    </a>
-                                </td>
-                            </tr>
-                        </table>
-                    @else
-                        {{-- Jika user belum mendaftar --}}
-                        <div class="alert alert-warning">
-                            Status Pendaftaran: <span class="fw-bold">Belum Mendaftar</span>
-                            <br>
-                            <a href="{{ route('form.create') }}" class="btn btn-primary mt-3">Klik di sini untuk melengkapi form pendaftaran</a>
-                        </div>
-                    @endif
-
-                    <div class="alert alert-info">
-                        Status Pendaftaran:
-                        @if($data->status == 'diterima')
-                            <span class="text-success fw-bold">Diterima</span>
-                        @elseif($data->status == 'ditolak')
-                            <span class="text-danger fw-bold">Ditolak</span>
-                        @else
-                            <span class="text-warning fw-bold">Menunggu Verifikasi</span>
-                        @endif
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-user-circle"></i> Profil Pendaftaran</h3>
+        </div>
+        
+        <div class="card-body">
+            @if($data)
+            <div class="row">
+                <!-- Kolom Foto -->
+                <div class="col-md-4 text-center">
+                    <img src="{{ asset('storage/' . $data->foto) }}" 
+                         class="img-thumbnail mb-3" 
+                         style="width: 200px; height: 250px; object-fit: cover;">
+                    
+                    <div class="status-box p-3 mb-3 
+                        @if($data->status == 'diterima') bg-success
+                        @elseif($data->status == 'ditolak') bg-danger
+                        @else bg-warning @endif text-white">
+                        <h5 class="mb-0">
+                            Status: {{ ucfirst($data->status) }}
+                        </h5>
                     </div>
+                </div>
 
-                    {{-- Tombol Edit dan Lihat Progress --}}
-                    <div class="d-flex justify-content-between mt-4">
-                        @if($data->status !== 'diterima')
-                            <a href="{{ route('formulir.edit') }}" class="btn btn-warning">Edit Data</a>
-                        @endif
-                        <a href="{{ route('formulir.tracking') }}" class="btn btn-info">Lihat Progress</a>
-                        <a href="{{ route('profile') }}" class="btn btn-primary">Profil</a>
+                <!-- Kolom Data -->
+                <div class="col-md-8">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Nama Lengkap</th>
+                            <td>{{ $data->nama }}</td>
+                        </tr>
+                        <tr>
+                            <th>Tempat/Tanggal Lahir</th>
+                            <td>
+                                {{ $data->tempat_lahir }}, 
+                                {{ \Carbon\Carbon::parse($data->tanggal_lahir)->translatedFormat('d F Y') }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Asal Sekolah</th>
+                            <td>{{ $data->asal_sekolah }}</td>
+                        </tr>
+                        <tr>
+                            <th>Jurusan</th>
+                            <td>{{ $data->jurusan->nama_jurusan ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Gelombang</th>
+                            <td>
+                                {{ $data->gelombang->nama ?? '-' }} 
+                                ({{ $data->gelombang->is_active ? 'Aktif' : 'Tidak Aktif' }})
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Dokumen Pendaftaran -->
+                    <div class="mt-4">
+                        <h5><i class="fas fa-file-alt"></i> Dokumen Pendaftaran:</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <a href="{{ asset('storage/' . $data->ijazah) }}" target="_blank">
+                                    <i class="fas fa-file-pdf"></i> Ijazah
+                                </a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="{{ asset('storage/' . $data->akta) }}" target="_blank">
+                                    <i class="fas fa-file-pdf"></i> Akta Kelahiran
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
+            @else
+            <div class="alert alert-danger">
+                Data pendaftaran tidak ditemukan. Silakan isi formulir terlebih dahulu.
+            </div>
+            @endif
+        </div>
+
+        <div class="card-footer text-end">
+            <a href="{{ route('formulir.edit') }}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit Data
+            </a>
         </div>
     </div>
 </div>

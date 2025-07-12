@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\JurusanController;
 use App\Http\Controllers\Admin\PendaftaranAdminController;
+use App\Http\Controllers\Admin\GelombangController;
 
 Route::get('/', function () {
     return view('home');
@@ -39,8 +40,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Route untuk jurusan
     Route::resource('jurusan', JurusanController::class);
 
+    // Route untuk gelombang
+    Route::resource('gelombang', GelombangController::class)->except(['show']);
+    Route::post('/gelombang/{id}/toggle', [GelombangController::class, 'toggleAktif'])->name('gelombang.toggle');
+
     // Pendaftaran update status (admin)
     Route::patch('/pendaftaran/{id}/status', [PendaftaranController::class, 'updateStatus'])->name('pendaftaran.status');
+    
+    // Admin mengubah tahap
+    Route::put('/pendaftaran/{id}/update-tahap', [PendaftaranAdminController::class, 'updateTahap'])->name('pendaftaran.updateTahap');
 });
 
 // Route untuk prestasi
@@ -50,9 +58,6 @@ Route::get('/prestasi', function () {
 
 // Route user melihat status tracking
 Route::get('/tracking', [PendaftaranController::class, 'tracking'])->name('formulir.tracking');
-
-// Route admin mengubah tahap
-Route::put('/pendaftaran/{id}/update-tahap', [PendaftaranAdminController::class, 'updateTahap'])->name('admin.pendaftaran.updateTahap');
 
 use App\Http\Controllers\ProfileController;
 
@@ -74,4 +79,18 @@ Route::middleware(['auth'])->get('/home', function () {
 
     return view('home'); // Halaman home setelah pendaftaran selesai
 })->name('home');
-Route::post('/admin/pendaftaran/{id}/tahap', [PendaftaranController::class, 'updateTahap'])->name('admin.pendaftaran.updateTahap');
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // ... route lainnya
+    
+    // Route untuk gelombang
+    Route::resource('gelombang', GelombangController::class)->except(['show']);
+    Route::post('gelombang/{id}/toggle', [GelombangController::class, 'toggleAktif'])
+         ->name('gelombang.toggle');
+});
+Route::middleware(['auth', 'role:admin'])
+     ->prefix('admin')
+     ->name('admin.')
+     ->group(function() {
+         Route::resource('gelombang', GelombangController::class)
+              ->except(['show']);
+     });
