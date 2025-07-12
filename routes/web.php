@@ -94,3 +94,11 @@ Route::middleware(['auth', 'role:admin'])
          Route::resource('gelombang', GelombangController::class)
               ->except(['show']);
      });
+     // Admin route
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::put('/pendaftaran/{id}/update-tahap', [PendaftaranController::class, 'updateTahap'])
+        ->name('admin.pendaftaran.update-tahap');
+});
+
+// Di routes/web.php
+Route::get('/formulir/edit', [PendaftaranController::class, 'edit'])->name('formulir.edit');

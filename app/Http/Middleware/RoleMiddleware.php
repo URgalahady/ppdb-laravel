@@ -1,20 +1,23 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, $role)
     {
-        // Pastikan user yang login memiliki role 'admin'
-        if (Auth::check() && Auth::user()->role == 'admin') {
-            return $next($request);
+        if (!auth()->check()) {
+            return redirect()->route('login');
         }
 
-        // Jika bukan admin, arahkan ke halaman lain (misalnya home)
-        return redirect()->route('home')->with('error',);
+        if (auth()->user()->role !== $role) {
+            return redirect()->route('home')
+                   ->with('error', 'Anda tidak memiliki akses ke halaman ini');
+        }
+
+        return $next($request);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -7,45 +8,64 @@ use Illuminate\Http\Request;
 
 class PendaftaranAdminController extends Controller
 {
-    // Menampilkan Daftar Pendaftaran
+    /**
+     * Menampilkan Daftar Pendaftaran
+     */
     public function index()
     {
-        $pendaftarans = Pendaftaran::all();
+        $pendaftarans = Pendaftaran::with(['user', 'jurusan', 'gelombang'])
+                          ->latest()
+                          ->get();
+        
         return view('admin.pendaftaran.index', compact('pendaftarans'));
     }
 
-    // Menampilkan Detail Pendaftaran
+    /**
+     * Menampilkan Detail Pendaftaran
+     */
     public function show($id)
     {
-        $pendaftaran = Pendaftaran::findOrFail($id);
+        $pendaftaran = Pendaftaran::with(['user', 'jurusan', 'gelombang'])
+                         ->findOrFail($id);
+                         
         return view('admin.pendaftaran.show', compact('pendaftaran'));
     }
 
-    // Menambahkan method destroy untuk menghapus data
+    /**
+     * Menghapus Data Pendaftaran
+     */
     public function destroy($id)
     {
-        // Temukan data pendaftaran berdasarkan ID
         $pendaftaran = Pendaftaran::findOrFail($id);
-
-        // Hapus data pendaftaran
+        
+        // Hapus file terkait jika ada
+        foreach (['foto', 'ijazah', 'akta'] as $field) {
+            if ($pendaftaran->$field) {
+                \Storage::disk('public')->delete($pendaftaran->$field);
+            }
+        }
+        
         $pendaftaran->delete();
 
-        // Redirect kembali dengan pesan sukses
-        return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran berhasil dihapus.');
+        return redirect()
+               ->route('admin.pendaftaran.index')
+               ->with('success', 'Pendaftaran berhasil dihapus.');
     }
+
+    /**
+     * Memperbarui Tahap Pendaftaran
+     */
     public function updateTahap(Request $request, $id)
-{
-    $request->validate([
-        'tahap' => 'required|in:belum,administrasi,tes_akademik,wawancara,selesai'
-    ]);
+    {
+        $validated = $request->validate([
+            'tahap' => 'required|in:belum,administrasi,tes_akademik,wawancara,selesai'
+        ]);
 
-    $pendaftaran = \App\Models\Pendaftaran::findOrFail($id);
-    $pendaftaran->tahap = $request->tahap;
-    $pendaftaran->save();
+        $pendaftaran = Pendaftaran::findOrFail($id);
+        $pendaftaran->update($validated);
 
-    return redirect()->route('admin.pendaftaran.show', $id)->with('success', 'Tahap pendaftaran berhasil diperbarui.');
+        return redirect()
+               ->route('admin.pendaftaran.show', $id)
+               ->with('success', 'Tahap pendaftaran berhasil diperbarui.');
+    }
 }
-
-}
-
- 
