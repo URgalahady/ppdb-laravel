@@ -316,7 +316,9 @@
 
 <section class="cta-section fix section-padding bg-cover" style="background-image: url('{{ asset('assets/img/cta/cta-bg.jpg') }}');">
     <div class="container text-center">
-        <h2 class="text-white">Siap Bergabung?</h2>
+        @if (auth()->user())
+            @else
+              <h2 class="text-white">Siap Bergabung?</h2>
         <p class="lead text-white">Ayo, segera daftar sekarang dan menjadi bagian dari sekolah impian kamu!</p>
         @guest
             <a href="{{ route('register') }}" class="theme-btn bg-white">
@@ -324,6 +326,10 @@
             </a>
         @endguest
     </div>
+            
+        @endif
+
+      
 </section>
 
 

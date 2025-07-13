@@ -1,6 +1,20 @@
 @extends('layouts.app')
 
 @section('content')
+@if ($data->status == 'ditolak')
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Mohon maaf pendaftaran anda telah dtiolak mohon mendaftara di gelombang berikutnya
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+@endif
+@if ($data->status == 'diterima')
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Selamat anda telah diterima silahkan tunggu info selanjutnya 
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    
+@endif
 <div class="container py-4">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
@@ -75,6 +89,7 @@
                     </div>
                 </div>
             </div>
+            
             @else
             <div class="alert alert-danger">
                 Data pendaftaran tidak ditemukan. Silakan isi formulir terlebih dahulu.
@@ -83,9 +98,14 @@
         </div>
 
         <div class="card-footer text-end">
-            <a href="{{ route('formulir.edit') }}" class="btn btn-warning">
+            @if ($data->status =='menunggu')
+             <a href="{{ route('formulir.edit') }}" class="btn btn-warning">
                 <i class="fas fa-edit"></i> Edit Data
             </a>
+            @endif
+           <div>
+               <a href="{{ route('formulir.tracking') }}" class="btn btn-info mt-3">Lihat Status Pendaftaran</a>
+           </div>
         </div>
     </div>
 </div>

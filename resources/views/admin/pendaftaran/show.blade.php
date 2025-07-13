@@ -54,7 +54,7 @@
                     
                     </div>
                 </div>
-<form action="{{ url('/pendaftaran/' . $pendaftaran->id . '/update-tahap') }}" method="POST">
+<form action="{{ url('admin/pendaftaran/' . $pendaftaran->id . '/update-tahap') }}" method="POST">
     @csrf
     @method('PUT')
 

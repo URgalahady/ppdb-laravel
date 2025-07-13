@@ -13,7 +13,8 @@ class PendaftaranAdminController extends Controller
      */
     public function index()
     {
-        $pendaftarans = Pendaftaran::with(['user', 'jurusan', 'gelombang'])
+       
+                $pendaftarans = Pendaftaran::with(['user', 'jurusan', 'gelombang'])
                           ->latest()
                           ->get();
         

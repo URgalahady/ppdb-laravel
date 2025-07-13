@@ -27,7 +27,7 @@
                             <div class="alert alert-warning" role="alert">
                                 Status: <strong>Anda belum mendaftar.</strong>
                                 <br>
-                                <a href="{{ route('form.create') }}" class="btn btn-primary mt-3">Klik di sini untuk melengkapi form pendaftaran</a>
+                                <a href="{{ route('formulir.create') }}" class="btn btn-primary mt-3">Klik di sini untuk melengkapi form pendaftaran</a>
                                  <a href="{{ route('formulir.tracking') }}" class="btn btn-info mt-3">Lihat Status Pendaftaran</a>
                             </div>
                         @endif

@@ -17,8 +17,7 @@
             <thead>
                 <tr>
                     <th>Nama</th>
-                    <th>Tanggal Mulai</th>
-                    <th>Tanggal Berakhir</th>
+                    <th>Periode</th>
                     <th>Status</th>
                     <th>Aksi</th>
                 </tr>
@@ -28,9 +27,10 @@
                 <tr>
                     <td>{{ $gelombang->nama }}</td>
                    <td>
-    {{ \Carbon\Carbon::parse($gelombang->tanggal_mulai)->format('d M Y') }} - 
-    {{ \Carbon\Carbon::parse($gelombang->tanggal_berakhir)->format('d M Y') }}
-</td>
+                        {{ \Carbon\Carbon::parse($gelombang->tanggal_mulai)->format('d M Y') }} - 
+                        {{ \Carbon\Carbon::parse($gelombang->tanggal_berakhir)->format('d M Y') }}
+                        
+                    </td>
                     <td>
                         <form action="{{ route('admin.gelombang.toggle', $gelombang->id) }}" method="POST">
                             @csrf
