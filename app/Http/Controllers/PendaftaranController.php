@@ -178,7 +178,7 @@ public function updateStatus(Request $request, $id)
     $pendaftaran = Pendaftaran::findOrFail($id);
 
     // Jika status ditolak, izinkan daftar ulang
-    $pendaftaran->bisa_daftar_ulang = $validated['status'] === 'ditolak';
+
     $pendaftaran->status = $validated['status'];
     $pendaftaran->save();
 
@@ -186,16 +186,20 @@ public function updateStatus(Request $request, $id)
 }
 public function updateGelombang(Request $request, $id)
 {
-    $request->validate([
-        'gelombang_id' => 'required|exists:gelombangs,id',
+    $validated = $request->validate([
+        'gelombang' => 'required|in:menunggu,diterima,ditolak',
     ]);
 
     $pendaftaran = Pendaftaran::findOrFail($id);
-    $pendaftaran->gelombang_id = $request->gelombang_id;
+
+    // Jika status ditolak, izinkan daftar ulang
+    $pendaftaran->bisa_daftar_ulang = $validated['status'] === 'ditolak';
+    $pendaftaran->status = $validated['status'];
     $pendaftaran->save();
 
-    return redirect()->back()->with('success', 'Gelombang berhasil diperbarui.');
+    return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
 }
+
 
 }
 
