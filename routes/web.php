@@ -54,6 +54,8 @@ Route::middleware(['auth', 'role:admin'])
             ->name('pendaftaran.status');
         Route::put('/pendaftaran/{id}/update-tahap', [PendaftaranAdminController::class, 'updateTahap'])
             ->name('pendaftaran.updateTahap');
+        Route::patch('/pendaftaran/{id}/update-gelombang', [PendaftaranController::class, 'updateGelombang'])->name('pendaftaran.updateGelombang');
+
         
         // Jurusan Management
         Route::resource('jurusan', JurusanController::class);

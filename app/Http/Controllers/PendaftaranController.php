@@ -184,7 +184,18 @@ public function updateStatus(Request $request, $id)
 
     return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
 }
+public function updateGelombang(Request $request, $id)
+{
+    $request->validate([
+        'gelombang_id' => 'required|exists:gelombangs,id',
+    ]);
 
+    $pendaftaran = Pendaftaran::findOrFail($id);
+    $pendaftaran->gelombang_id = $request->gelombang_id;
+    $pendaftaran->save();
+
+    return redirect()->back()->with('success', 'Gelombang berhasil diperbarui.');
+}
 
 }
 

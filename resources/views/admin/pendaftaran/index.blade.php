@@ -22,6 +22,7 @@
                     <th>Jurusan</th>
                     <th>Tanggal Lahir</th>
                     <th>Status</th>
+                    <th>Gelombang</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -49,6 +50,21 @@
                                     <option value="ditolak" {{ $item->status == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                                 </select>
                             </form>
+                            <th>
+                                
+                                     <form action="{{ route('admin.pendaftaran.updateGelombang', $item->id) }}" method="POST">
+                                    @csrf
+                                @method('PATCH')
+                                <select name="gelombang_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                                    @foreach ($gelombangAktif as $gel)
+                                        <option value="{{ $gel->id }}" {{ $gel->id == $item->gelombang_id ? 'selected' : '' }}>
+                                            {{ $gel->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                </form>
+
+                        </th>
                         </td>
                         <td>
                             <a href="{{ route('admin.pendaftaran.show', $item->id) }}" class="btn btn-sm btn-outline-info">
@@ -62,8 +78,9 @@
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
+                            
                         </td>
-                    </tr>
+                                        </tr>
                 @empty
                     <tr>
                         <td colspan="7" class="text-muted">Belum ada data pendaftar.</td>

@@ -16,13 +16,19 @@
             </div>
             <div class="mb-3">
                 <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
-                <input type="date" class="form-control" id="tanggal_mulai" name="tanggal_mulai" 
-                        {{ \Carbon\Carbon::parse($gelombang->tanggal_mulai)->format('d M Y') }} - >
+                <input type="date" class="form-control" id="tanggal_mulai" name="tanggal_mulai" value="{{ $gelombang->tanggal_mulai }}">
+                        
             </div>
             <div class="mb-3">
                 <label for="tanggal_berakhir" class="form-label">Tanggal Berakhir</label>
                 <input type="date" class="form-control" id="tanggal_berakhir" name="tanggal_berakhir" 
-                       {{ \Carbon\Carbon::parse($gelombang->tanggal_berakhir)->format('d M Y') }}>
+                    value="{{ $gelombang->tanggal_berakhir }}">
+            </div>
+            <div class="mb-3">
+                <select name="is_active" class="form-control" id="">
+                    <option value="1" {{ $gelombang->is_active == 1 ? 'selected' : '' }}> Aktif</option>
+                    <option value="0" {{ $gelombang->is_active == 0 ? 'selected' : '' }}>Nonaktif</option>
+                </select>
             </div>
             <button type="submit" class="btn btn-primary">Update</button>
             <a href="{{ route('admin.gelombang.index') }}" class="btn btn-secondary">Batal</a>

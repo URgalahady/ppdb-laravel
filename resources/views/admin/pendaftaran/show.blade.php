@@ -66,6 +66,7 @@
             <option value="wawancara" {{ $pendaftaran->tahap == 'wawancara' ? 'selected' : '' }}>Wawancara</option>
             <option value="selesai" {{ $pendaftaran->tahap == 'selesai' ? 'selected' : '' }}>Selesai</option>
         </select>
+       
     </div>
 
     <button type="submit" class="btn btn-primary">Simpan Tahap</button>

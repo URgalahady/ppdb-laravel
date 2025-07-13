@@ -45,10 +45,12 @@ class GelombangController extends Controller
     // Update gelombang
     public function update(Request $request, Gelombang $gelombang)
     {
+    
         $request->validate([
             'nama' => 'required|string|max:255',
             'tanggal_mulai' => 'required|date',
-            'tanggal_berakhir' => 'required|date|after:tanggal_mulai'
+            'tanggal_berakhir' => 'required|date|after:tanggal_mulai',
+            'is_active' => 'required'
         ]);
 
         $gelombang->update($request->all());

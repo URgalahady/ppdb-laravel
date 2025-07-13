@@ -30,14 +30,12 @@ class GelombangController extends Controller
     }
 
     // Toggle status aktif
-    public function toggleAktif($id)
+    public function toggleAktif($id, $request )
     {
-        // Nonaktifkan semua gelombang lain
-        Gelombang::where('id', '!=', $id)->update(['is_active' => false]);
 
         // Aktifkan/nonaktifkan gelombang ini
         $gelombang = Gelombang::find($id);
-        $gelombang->is_active = !$gelombang->is_active;
+        $gelombang->is_active = $request->awa;
         $gelombang->save();
 
         return back()->with('success', 'Status gelombang berhasil diubah');

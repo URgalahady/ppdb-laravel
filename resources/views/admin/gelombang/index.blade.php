@@ -32,12 +32,8 @@
                         
                     </td>
                     <td>
-                        <form action="{{ route('admin.gelombang.toggle', $gelombang->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-sm {{ $gelombang->is_active ? 'btn-success' : 'btn-secondary' }}">
-                                {{ $gelombang->is_active ? 'Aktif' : 'Nonaktif' }}
-                            </button>
-                        </form>
+                        <span class="btn btn-sm {{ $gelombang->is_active ? 'btn-success' : 'btn-secondary' }}">{{ $gelombang->is_active ? 'Aktif' : 'Nonaktif' }}</span>
+                       
                     </td>
                     <td>
                         <a href="{{ route('admin.gelombang.edit', $gelombang->id) }}" class="btn btn-warning btn-sm">

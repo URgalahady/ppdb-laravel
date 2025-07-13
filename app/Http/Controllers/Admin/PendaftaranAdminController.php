@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pendaftaran;
+use App\Models\Gelombang;
 use Illuminate\Http\Request;
 
 class PendaftaranAdminController extends Controller
@@ -14,11 +15,14 @@ class PendaftaranAdminController extends Controller
     public function index()
     {
        
-                $pendaftarans = Pendaftaran::with(['user', 'jurusan', 'gelombang'])
+    $pendaftarans = Pendaftaran::with(['user', 'jurusan', 'gelombang'])
                           ->latest()
                           ->get();
+    $gelombangAktif = Gelombang::where('is_active', 1)->whereDate('tanggal_mulai', '<=', date('Y-m-d'))
+    ->whereDate('tanggal_berakhir', '>=', date('Y-m-d'))->get();
         
-        return view('admin.pendaftaran.index', compact('pendaftarans'));
+        
+        return view('admin.pendaftaran.index', compact('pendaftarans', 'gelombangAktif'));
     }
 
     /**
