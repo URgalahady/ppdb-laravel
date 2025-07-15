@@ -37,5 +37,14 @@ class Gelombang extends Model
             throw new \Exception('Ada pendaftaran di gelombang ini');
         }
     });
+    
+
+
 }
+
+public function pendaftaran()
+{
+    return $this->hasMany(Pendaftaran::class);
+}
+
 }

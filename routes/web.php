@@ -21,6 +21,9 @@ Route::get('/prestasi', function () {
     return view('prestasi');
 })->name('prestasi');
 
+
+
+
 // Authentication Routes
 Auth::routes();
 
@@ -55,8 +58,13 @@ Route::middleware(['auth', 'role:admin'])
         Route::put('/pendaftaran/{id}/update-tahap', [PendaftaranAdminController::class, 'updateTahap'])
             ->name('pendaftaran.updateTahap');
         Route::patch('/pendaftaran/{id}/update-gelombang', [PendaftaranController::class, 'updateGelombang'])->name('pendaftaran.updateGelombang');
-
         
+        // Add status and gelombang routes
+        Route::get('admin/pendaftaran/status', [PendaftaranAdminController::class, 'byStatus'])->name('pendaftaran.Status');
+        Route::get('admin/pendaftaran/gelombang', [PendaftaranAdminController::class, 'byGelombang'])->name('pendaftaran.Gelombang');
+        
+        // Menyimpan status siswa (diterima/ditolak)
+        Route::post('admin/pendaftaran/konfirmasi/{id}', [PendaftaranAdminController::class, 'konfirmasiSiswa'])->name('pendaftaran.konfirmasi.siswa');
         // Jurusan Management
         Route::resource('jurusan', JurusanController::class);
         

@@ -17,4 +17,5 @@ class ProfileController extends Controller
 
         return view('profile.show', compact('user', 'isRegistered'));
     }
+    
 }

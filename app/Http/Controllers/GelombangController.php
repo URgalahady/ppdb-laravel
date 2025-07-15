@@ -35,7 +35,7 @@ class GelombangController extends Controller
 
         // Aktifkan/nonaktifkan gelombang ini
         $gelombang = Gelombang::find($id);
-        $gelombang->is_active = $request->awa;
+        $gelombang->is_active = $request;
         $gelombang->save();
 
         return back()->with('success', 'Status gelombang berhasil diubah');

@@ -11,26 +11,41 @@ use Illuminate\Support\Facades\Storage;
 
 class PendaftaranController extends Controller
 {
-    public function create()
-    {
-        
-        if (auth()->user()->pendaftaran) {
-            return redirect()->route('formulir.show'); // Jika sudah mendaftar, langsung ke halaman show
-        }
-        
-        // Cek apakah ada gelombang aktif
-        $gelombangAktif = Gelombang::where('is_active', 1)->whereDate('tanggal_mulai', '<=', date('Y-m-d'))
-    ->whereDate('tanggal_berakhir', '>=', date('Y-m-d'))->first();
-        
-        
-        if (!$gelombangAktif) {
-            return redirect()->route('home')->with('error', 'Tidak ada gelombang pendaftaran yang aktif saat ini.');
-        }
+   public function create()
+{
+    $user = auth()->user(); // Dapatkan user yang sedang login
 
-        // Ambil jurusan yang belum penuh
-        $jurusans = Jurusan::where('penuh', false)->get();
-        return view('pendaftaran.form', compact('jurusans', 'gelombangAktif'));
+    if ($user->pendaftaran) {
+        return redirect()->route('formulir.show'); // Jika sudah mendaftar, langsung ke halaman show
     }
+
+    // Cek apakah ada gelombang aktif
+    $gelombangAktif = Gelombang::where('is_active', 1)
+        ->whereDate('tanggal_mulai', '<=', date('Y-m-d'))
+        ->whereDate('tanggal_berakhir', '>=', date('Y-m-d'))
+        ->first();
+
+    if (!$gelombangAktif) {
+        return redirect()->route('home')->with('error', 'Tidak ada gelombang pendaftaran yang aktif saat ini.');
+    }
+
+    $pendaftaran = $user->pendaftaran;
+
+    // Jika sudah pernah mendaftar dan statusnya bukan 'ditolak', arahkan ke halaman show
+    if ($pendaftaran && $pendaftaran->status !== 'ditolak') {
+        return redirect()->route('formulir.show');
+    }
+
+    // Kalau sudah ditolak tapi masih di gelombang yang sama, jangan izinkan
+    if ($pendaftaran && $pendaftaran->status === 'ditolak' && $pendaftaran->gelombang_id == $gelombangAktif->id) {
+        return redirect()->route('formulir.show')->with('error', 'Anda sudah ditolak di gelombang ini. Silakan tunggu gelombang berikutnya.');
+    }
+
+    // Ambil jurusan yang belum penuh
+    $jurusans = Jurusan::where('penuh', false)->get();
+    return view('pendaftaran.form', compact('jurusans', 'gelombangAktif'));
+}
+
 
     public function store(Request $request)
     {
@@ -56,12 +71,27 @@ class PendaftaranController extends Controller
         $existingPendaftaran = Pendaftaran::where('user_id', auth()->id())
             ->where('gelombang_id', $gelombang->id)
             ->first();
-        if ($existingPendaftaran) {
+        if ($existingPendaftaran && $existingPendaftaran->status != 'ditolak') {
             return back()->with('error', 'Anda sudah terdaftar di gelombang ini.');
         }
 
         // Ambil data user dan jurusan
         $user = auth()->user();
+
+         
+         $gelombangAktif = Gelombang::where('is_active', 1)
+        ->whereDate('tanggal_mulai', '<=', now())
+        ->whereDate('tanggal_berakhir', '>=', now())
+        ->first();
+
+        
+
+         if (!$gelombangAktif) {
+        return redirect()->route('home')->with('error', 'Tidak ada gelombang pendaftaran yang aktif saat ini.');
+            
+    }
+
+
         $jurusan = Jurusan::findOrFail($request->jurusan_id);
 
         // Simpan data pendaftaran
@@ -81,11 +111,15 @@ class PendaftaranController extends Controller
             $jurusan->penuh = true; // Tandai jurusan penuh jika kuota habis
         }
         $jurusan->save();
+        
+
+        
 
         // Simpan pendaftaran
         Pendaftaran::create($data);
 
         return redirect()->route('formulir.show')->with('success', 'Formulir pendaftaran berhasil disimpan!');
+        
     }
 
     // Menampilkan data pendaftaran user
@@ -138,26 +172,39 @@ class PendaftaranController extends Controller
     }
 
     // Menyimpan perubahan pendaftaran
-    public function update(Request $request)
-    {
-        // Validasi input
-        $validatedData = $request->validate([
-            'nama' => 'required|string|max:255',
-            'tanggal_lahir' => 'required|date',
-            'asal_sekolah' => 'required|string|max:255',
-            'jurusan_id' => 'required|exists:jurusans,id',
-            'gelombang_id' => 'required|exists:gelombangs,id',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'ijazah' => 'nullable|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
-            'akta' => 'nullable|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
-        ]);
+   public function update(Request $request)
+{
+    $validatedData = $request->validate([
+        'nama' => 'required|string|max:255',
+        'tempat_lahir' => 'required|string|max:255',
+        'tanggal_lahir' => 'required|date',
+        'asal_sekolah' => 'required|string|max:255',
+        'jurusan_id' => 'required|exists:jurusans,id',
+        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'ijazah' => 'nullable|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+        'akta' => 'nullable|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+    ]);
 
-        // Update data pendaftaran
-        $pendaftaran = Auth::user()->pendaftaran;
-        $pendaftaran->update($validatedData);
+    $pendaftaran = Auth::user()->pendaftaran;
 
-        return redirect()->route('formulir.show')->with('success', 'Data pendaftaran berhasil diperbarui!');
+    // Upload file jika ada
+    if ($request->hasFile('foto')) {
+        $validatedData['foto'] = $request->file('foto')->store('uploads/foto', 'public');
     }
+
+    if ($request->hasFile('ijazah')) {
+        $validatedData['ijazah'] = $request->file('ijazah')->store('uploads/ijazah', 'public');
+    }
+
+    if ($request->hasFile('akta')) {
+        $validatedData['akta'] = $request->file('akta')->store('uploads/akta', 'public');
+    }
+
+    $pendaftaran->update($validatedData);
+
+    return redirect()->route('formulir.show')->with('success', 'Data pendaftaran berhasil diperbarui!');
+}
+
     
     public function tracking()
 {
@@ -176,29 +223,46 @@ public function updateStatus(Request $request, $id)
     ]);
 
     $pendaftaran = Pendaftaran::findOrFail($id);
+    $status = $validated['status'];
 
-    // Jika status ditolak, izinkan daftar ulang
+    // Jika status ditolak, periksa gelombang berikutnya yang aktif
+    if ($status === 'ditolak') {
+        // Cari gelombang berikutnya yang aktif
+        $gelombangBerikutnya = Gelombang::where('is_active', 1)
+            ->whereDate('tanggal_mulai', '<=', now())
+            ->whereDate('tanggal_berakhir', '>=', now())
+            ->where('id', '>', $pendaftaran->gelombang_id) // Gelombang setelah gelombang yang sedang digunakan
+            ->first();
 
-    $pendaftaran->status = $validated['status'];
+        if ($gelombangBerikutnya) {
+            // Pindahkan pendaftar ke gelombang berikutnya
+            $pendaftaran->gelombang_id = $gelombangBerikutnya->id;
+        } else {
+            // Jika tidak ada gelombang berikutnya, beri pesan
+            return redirect()->back()->with('error', 'Tidak ada gelombang pendaftaran yang aktif berikutnya.');
+        }
+    }
+
+    // Update status pendaftaran
+    $pendaftaran->status = $status;
     $pendaftaran->save();
 
     return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
 }
+
 public function updateGelombang(Request $request, $id)
 {
     $validated = $request->validate([
-        'gelombang' => 'required|in:menunggu,diterima,ditolak',
+        'gelombang_id' => 'required|exists:gelombangs,id',
     ]);
 
     $pendaftaran = Pendaftaran::findOrFail($id);
-
-    // Jika status ditolak, izinkan daftar ulang
-    $pendaftaran->bisa_daftar_ulang = $validated['status'] === 'ditolak';
-    $pendaftaran->status = $validated['status'];
+    $pendaftaran->gelombang_id = $validated['gelombang_id'];
     $pendaftaran->save();
 
-    return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
+    return redirect()->back()->with('success', 'Gelombang berhasil diperbarui.');
 }
+
 
 
 }
