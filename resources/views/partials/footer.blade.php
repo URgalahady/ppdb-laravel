@@ -29,8 +29,8 @@
                     <ul class="footer-links">
                         <li><a href="{{ route('about') }}">Tentang Sekolah</a></li>
                         <li><a href="#">PPDB Online</a></li>
-                        <li><a href="#">Layanan Konseling</a></li>
-                        <li><a href="#">Hubungi Kami</a></li>
+                        <li><a href="{{ route('konseling.index') }}">Layanan Konseling</a></li>
+                        <li><a href="{{ route('kontak.form') }}">Hubungi Kami</a></li>
                     </ul>
                 </div>
             </div>

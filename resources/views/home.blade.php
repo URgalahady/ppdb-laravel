@@ -61,7 +61,7 @@
                         <p class="wow fadeInUp" data-wow-delay=".5s">Halo, {{ Auth::user()->name }}! Selamat datang di portal PPDB Online.</p>
 
                         @if (Auth::user()->pendaftaran)
-                            <a href="{{ route('formulir.show') }}" class="theme-btn wow fadeInUp" data-wow-delay=".7s">
+                            <a href="{{ route('profile') }}" class="theme-btn wow fadeInUp" data-wow-delay=".7s">
                                 Lihat Profil Pendaftaran <i class="fa-solid fa-arrow-right-long"></i>
                             </a>
                         @else
@@ -106,9 +106,7 @@
                         <span>Robotic</span>
                         <p>Program robotika unggulan sekolah dengan prestasi gemilang yang menjadikan SMKN Manokwari 
                             Sebagai SMK unggulan Se-Indonesia dan menjadikannya top 10 SMK Dengan minat murid baru paling banyak di jawa barat</p>
-                        <a href="#" class="arrow-icon">
-                            <i class="fa-solid fa-arrow-right-long"></i>
-                        </a>
+                       
                     </div>
                 </div>
             </div>
@@ -125,9 +123,7 @@
                         <span>Olahraga</span>
                         <p>Tim basket sekolah dengan berbagai prestasi nasional dan internasional dan tim basket dari 
                             SMKN Manokwari telah menjuarai 4x juara Se-indonesia dan 2x Untuk internasional yang menjadikannya eskul unggulan</p>
-                       <a href="#" class="arrow-icon">
-                            <i class="fa-solid fa-arrow-right-long"></i>
-                        </a>
+                     
                     </div>
                 </div>
             </div>
@@ -157,7 +153,7 @@
                 </div>
                 
                 <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".5s">
-                    <div class="work-process-items text-center style-2">
+                    <div class="work-process-items text-center">
                         <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
                             <i class="fas fa-globe"></i> </div>
                         <div class="content">
@@ -179,18 +175,6 @@
                 </div>
 
                 <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".3s">
-                    <div class="work-process-items text-center style-2">
-                        <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
-                            <i class="fas fa-language"></i>
-                        </div>
-                        <div class="content">
-                            <h4>Laboratorium Bahasa Multimedia</h4>
-                            <p>Fasilitas modern untuk meningkatkan kemampuan berbahasa asing melalui simulasi percakapan dan perangkat interaktif.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".5s">
                     <div class="work-process-items text-center">
                         <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
                             <i class="fas fa-paint-brush"></i>
@@ -198,42 +182,6 @@
                         <div class="content">
                             <h4>Studio Seni & Desain</h4>
                             <p>Lingkungan inspiratif dengan peralatan lengkap untuk seni rupa, desain grafis, fotografi, dan kerajinan tangan.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".7s">
-                    <div class="work-process-items text-center style-2">
-                        <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
-                            <i class="fas fa-futbol"></i>
-                        </div>
-                        <div class="content">
-                            <h4>Arena Olahraga Outdoor & Indoor</h4>
-                            <p>Lapangan basket, futsal, voli, serta gelanggang indoor untuk mendukung aktivitas fisik dan kompetisi olahraga.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".3s">
-                    <div class="work-process-items text-center">
-                        <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
-                            <i class="fas fa-microphone-alt"></i>
-                        </div>
-                        <div class="content">
-                            <h4>Auditorium & Aula Serbaguna</h4>
-                            <p>Ruang representatif untuk acara sekolah, pertunjukan seni, seminar, dan pertemuan besar dengan tata suara modern.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".5s">
-                    <div class="work-process-items text-center style-2">
-                        <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
-                            <i class="fas fa-medkit"></i>
-                        </div>
-                        <div class="content">
-                            <h4>Pusat Layanan Kesehatan (UKS)</h4>
-                            <p>Dilayani oleh tenaga medis profesional untuk penanganan pertolongan pertama dan konsultasi kesehatan siswa.</p>
                         </div>
                     </div>
                 </div>
@@ -250,38 +198,14 @@
                     </div>
                 </div>
 
-                <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".3s">
-                    <div class="work-process-items text-center style-2">
-                        <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
-                            <i class="fas fa-parking"></i>
-                        </div>
-                        <div class="content">
-                            <h4>Area Parkir Aman & Luas</h4>
-                            <p>Fasilitas parkir yang tertata rapi dan aman untuk kendaraan roda dua maupun roda empat siswa, guru, dan tamu.</p>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".5s">
                     <div class="work-process-items text-center">
                         <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
-                            <i class="fas fa-comments"></i>
+                            <i class="fas fa-medkit"></i>
                         </div>
                         <div class="content">
-                            <h4>Ruang Bimbingan Konseling</h4>
-                            <p>Layanan konseling profesional untuk membantu siswa mengembangkan potensi diri dan mengatasi tantangan akademik maupun personal.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".7s">
-                    <div class="work-process-items text-center style-2">
-                        <div class="icon bg-cover" style="background-image: url('assets/img/process/icon-bg.png');">
-                            <i class="fas fa-leaf"></i>
-                        </div>
-                        <div class="content">
-                            <h4>Kebun Edukasi & Green House</h4>
-                            <p>Area belajar outdoor untuk mata pelajaran biologi, lingkungan, dan praktik pertanian berkelanjutan.</p>
+                            <h4>Pusat Layanan Kesehatan (UKS)</h4>
+                            <p>Dilayani oleh tenaga medis profesional untuk penanganan pertolongan pertama dan konsultasi kesehatan siswa.</p>
                         </div>
                     </div>
                 </div>
@@ -289,6 +213,7 @@
         </div>
     </div>
 </section>
+
 <!-- Prestasi -->
 <section class="testimonial-section fix section-padding">
     <div class="container">
@@ -313,24 +238,24 @@
     </div>
 </section>
 
-
 <section class="cta-section fix section-padding bg-cover" style="background-image: url('{{ asset('assets/img/cta/cta-bg.jpg') }}');">
     <div class="container text-center">
-        @if (auth()->user())
-            @else
-              <h2 class="text-white">Siap Bergabung?</h2>
-        <p class="lead text-white">Ayo, segera daftar sekarang dan menjadi bagian dari sekolah impian kamu!</p>
-        @guest
+        @auth
+            @if (auth()->user()->role === 'user')
+                <h2 class="text-white">Halo, {{ auth()->user()->name }}!</h2>
+                <p class="lead text-white">Terima kasih telah mendaftar. Jangan lupa lengkapi data kamu ya!</p>
+            @endif
+        @else
+            <h2 class="text-white">Siap Bergabung?</h2>
+            <p class="lead text-white">Ayo, segera daftar sekarang dan menjadi bagian dari sekolah impian kamu!</p>
+            
             <a href="{{ route('register') }}" class="theme-btn bg-white">
                 Daftar Sekarang <i class="fa-solid fa-arrow-right-long"></i>
             </a>
-        @endguest
+        @endauth
     </div>
-            
-        @endif
-
-      
 </section>
+
 
 
 @endsection

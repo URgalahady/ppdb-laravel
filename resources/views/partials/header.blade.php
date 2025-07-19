@@ -83,9 +83,7 @@
                         </button>
                     </div>
                 </div>
-                <p class="text d-none d-xl-block">
-                    Nullam dignissim, ante scelerisque the is euismod fermentum odio sem semper the is erat, a feugiat leo urna eget eros. Duis Aenean a imperdiet risus.
-                </p>
+              
                 <div class="mobile-menu fix mb-3">
                     {{-- Ini adalah placeholder untuk menu utama dari desktop yang akan dikloning --}}
                     <ul id="mobileNavigationPlaceholder">
@@ -111,7 +109,10 @@
                 <div> 
                             <li><a href="{{ url('/') }}">Beranda</a></li>
                             <li><a href="{{ route('about') }}">Tentang Sekolah</a></li>
-                            <li><a href="#prestasi">Prestasi</a></li>   
+                            <li><a href="{{ route('prestasi') }}">Prestasi</a></li> 
+                             <li><a href="{{ route('profile') }}">Profile</a></li> 
+                              
+
                 </div>
                 <div class="offcanvas__contact">
                     <h4>Contact Info</h4>

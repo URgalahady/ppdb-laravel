@@ -1,68 +1,62 @@
-@extends('layouts.app') {{-- Pastikan ini mengarah ke layout utama Anda --}}
+@extends('layouts.app')
 
 @section('content')
 <div class="container py-5">
     <div class="text-center mb-5">
         <h3 class="fw-bold">INFORMASI PENDAFTARAN</h3>
-        {{-- Deskripsi tambahan bisa ditambahkan di sini jika diperlukan --}}
     </div>
 
-    <div class="row row-cols-1 row-cols-md-4 g-3 mb-4 justify-content-center"> {{-- Menggunakan g-3 untuk gap, row-cols-md-4 untuk 4 kolom di layar medium ke atas --}}
-        @php
-            // Definisi tahapan sesuai urutan dan label
-            $steps = [
-                'administrasi' => 'Tahap Administrasi',
-                'tes_akademik' => 'Test Potensi Akademik',
-                'wawancara' => 'Wawancara',
-                'selesai' => 'Penetapan'
-            ];
+    @php
+        // Tahapan dan labelnya
+        $steps = [
+            'administrasi' => 'Tahap Administrasi',
+            'tes_akademik' => 'Test Potensi Akademik',
+            'wawancara' => 'Wawancara',
+            'selesai' => 'Penetapan'
+        ];
 
-            // Tahap aktif dari data pendaftaran Anda
-            $activeStep = $data->tahap ?? 'administrasi'; // Default ke 'administrasi' jika belum ada tahap
+        $activeStep = $data->tahap ?? 'administrasi'; // tahap aktif
+        $stepKeys = array_keys($steps);
+        $activeIndex = array_search($activeStep, $stepKeys);
+    @endphp
 
-            // Urutan kunci tahap untuk perbandingan
-            $stepKeys = array_keys($steps);
-            $activeIndex = array_search($activeStep, $stepKeys);
-        @endphp
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            @foreach($stepKeys as $index => $key)
+                @php
+                    $label = $steps[$key];
+                    $cardClass = 'bg-light text-dark'; // default
+                    $statusIcon = 'fa-circle text-muted';
+                    $statusText = 'Belum';
 
-        @foreach($stepKeys as $index => $key)
-            @php
-                $label = $steps[$key];
-                $cardClass = 'bg-light text-dark'; // Default: ringan, teks gelap
-                $statusIcon = 'fa-circle text-muted'; // Default: ikon lingkaran abu-abu
-                $statusText = 'Belum';
-
-                if ($index < $activeIndex) {
-                    // Tahap yang sudah selesai
-                    $cardClass = 'bg-success text-white';
-                    $statusIcon = 'fa-check-circle';
-                    $statusText = 'Selesai';
-                } elseif ($index == $activeIndex) {
-                    // Tahap yang sedang aktif
-                    if ($key == 'penetapan') {
-                        $cardClass = 'bg-light'; // Latar putih untuk tahap penetapan
-                        $statusIcon = 'fa-clock text-muted'; // Ikon jam
-                        $statusText = 'Menunggu';
-                    } else {
-                        $cardClass = 'bg-success text-white'; // Hijau cerah untuk tahap aktif lainnya
-                        $statusIcon = 'fa-check-circle'; // Ikon centang
+                    if ($index < $activeIndex) {
+                        $cardClass = 'bg-success text-white';
+                        $statusIcon = 'fa-check-circle';
                         $statusText = 'Selesai';
+                    } elseif ($index == $activeIndex) {
+                        if ($key == 'selesai') {
+                            $cardClass = 'bg-light';
+                            $statusIcon = 'fa-clock text-muted';
+                            $statusText = 'Menunggu';
+                        } else {
+                            $cardClass = 'bg-success text-white';
+                            $statusIcon = 'fa-check-circle';
+                            $statusText = 'Selesai';
+                        }
                     }
-                }
-            @endphp
+                @endphp
 
-            <div class="col">
-                <div class="card h-100 {{ $cardClass }} border-0 shadow-sm rounded">
-                    <div class="card-body text-center d-flex flex-column justify-content-center align-items-center">
+                <div class="card mb-3 {{ $cardClass }} shadow-sm border-0 rounded">
+                    <div class="card-body text-center">
                         <h5 class="card-title mb-2">{{ $label }}</h5>
-                        <p class="card-text mb-2">
-                            <i class="fas {{ $statusIcon }} fa-2x"></i> {{-- Ikon lebih besar untuk visual --}}
+                        <p class="mb-2">
+                            <i class="fas {{ $statusIcon }} fa-2x"></i>
                         </p>
-                        <span class="small fw-bold">{{ $statusText }}</span>
+                        <div class="small fw-bold">{{ $statusText }}</div>
                     </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </div>
 
     <div class="text-center mt-4">

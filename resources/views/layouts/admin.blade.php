@@ -8,6 +8,7 @@
     {{-- Bootstrap 5.3 CDN --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="shortcut icon" href="{{ asset('img/ppdb.svg') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
     {{-- Font Awesome --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -72,22 +73,26 @@
                 <a href="{{ route('admin.pendaftaran.index') }}" class="list-group-item list-group-item-action bg-dark text-white">
                     <i class="fas fa-users"></i> Data Pendaftar
                 </a>
+                   <a href="{{ route('admin.konseling.index') }}" class="list-group-item list-group-item-action bg-dark text-white">
+                    <i class="fas fa-comment"></i> Konseling
+                </a>
                 <a href="{{ route('admin.jurusan.index') }}" class="list-group-item list-group-item-action bg-dark text-white">
                     <i class="fas fa-layer-group"></i> Jurusan
                 </a>
                 <a href="{{ route('admin.gelombang.index') }}" class="list-group-item list-group-item-action bg-dark text-white">
-                    <i class="fas fa-wave-square"></i> Gelombang
+                    <i class="fas fa-sync-alt"></i> Gelombang
                 </a>
 
                 {{-- New Sidebar Links --}}
                 <a href="{{ route('admin.pendaftaran.Status') }}" class="list-group-item list-group-item-action bg-dark text-white">
-                <i class="fas fa-filter"></i> Berdasarkan Status
+                    <i class="fas fa-hourglass-half"></i> Berdasarkan Status
                 </a>
                 <a href="{{ route('admin.pendaftaran.Gelombang') }}" class="list-group-item list-group-item-action bg-dark text-white">
                     <i class="fas fa-calendar"></i> Berdasarkan Gelombang
                 </a>
-            
-
+                <a href="{{ route('admin.kontak.index') }}" class="list-group-item list-group-item-action bg-dark text-white">
+                    <i class="fas fa-envelope"></i> Pesan Masuk 
+                </a>
 
 
                 <form action="{{ route('logout') }}" method="POST" class="list-group-item list-group-item-action bg-dark text-white d-inline">
@@ -119,12 +124,11 @@
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- DataTables JS --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
     {{-- Custom JS --}}
-    <script>
-        // Toggle Sidebar
-        document.getElementById('menu-toggle').addEventListener('click', function() {
-            document.getElementById('wrapper').classList.toggle('toggled');
-        });
-    </script>
+    
 </body>
 </html>

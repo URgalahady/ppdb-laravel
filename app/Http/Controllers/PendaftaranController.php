@@ -224,6 +224,8 @@ public function updateStatus(Request $request, $id)
 
     $pendaftaran = Pendaftaran::findOrFail($id);
     $status = $validated['status'];
+    
+    
 
     // Jika status ditolak, periksa gelombang berikutnya yang aktif
     if ($status === 'ditolak') {
@@ -244,11 +246,11 @@ public function updateStatus(Request $request, $id)
     }
 
     // Update status pendaftaran
-    $pendaftaran->status = $status;
+    $pendaftaran->status = $status === 'ditolak' ? 'menunggu' : $status;
     $pendaftaran->save();
 
     return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
-}
+}   
 
 public function updateGelombang(Request $request, $id)
 {

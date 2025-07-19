@@ -8,7 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- ======== Page title ============ -->
-    <title>{{ config('app.name', 'SMKN 1 MANOKWARI') }}</title>
+    <title>{{ config('app.name', 'SMKN 1 Manokwa') }}</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('img/ppdb.svg') }}">
