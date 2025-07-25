@@ -16,6 +16,7 @@
         ];
 
         $activeStep = $data->tahap ?? 'administrasi'; // tahap aktif
+        $status = $data->status ?? 'menunggu'; // status pendaftaran
         $stepKeys = array_keys($steps);
         $activeIndex = array_search($activeStep, $stepKeys);
     @endphp
@@ -35,9 +36,19 @@
                         $statusText = 'Selesai';
                     } elseif ($index == $activeIndex) {
                         if ($key == 'selesai') {
-                            $cardClass = 'bg-light';
-                            $statusIcon = 'fa-clock text-muted';
-                            $statusText = 'Menunggu';
+                            if ($status == 'diterima') {
+                                $cardClass = 'bg-success text-white';
+                                $statusIcon = 'fa-check-circle';
+                                $statusText = 'Diterima';
+                            } elseif ($status == 'ditolak') {
+                                $cardClass = 'bg-danger text-white';
+                                $statusIcon = 'fa-times-circle';
+                                $statusText = 'Ditolak';
+                            } else {
+                                $cardClass = 'bg-light';
+                                $statusIcon = 'fa-clock text-muted';
+                                $statusText = 'Menunggu';
+                            }
                         } else {
                             $cardClass = 'bg-success text-white';
                             $statusIcon = 'fa-check-circle';

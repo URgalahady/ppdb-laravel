@@ -8,10 +8,17 @@
     <div class="card-body">
         <form action="{{ route('admin.gelombang.store') }}" method="POST">
             @csrf
-            <div class="mb-3">
-                <label for="nama" class="form-label">Nama Gelombang</label>
-                <input type="text" class="form-control" id="nama" name="nama" required>
+                <div class="mb-3">
+                <label for="nama" class="form-label">Pilih Gelombang</label>
+                <select class="form-control" id="nama" name="nama" required>
+                    <option value="">-- Pilih Gelombang --</option>
+                    <option value="Gelombang 1">Gelombang 1</option>
+                    <option value="Gelombang 2">Gelombang 2</option>
+                    <option value="Gelombang 3">Gelombang 3</option>
+                    <option value="Gelombang 4">Gelombang 4</option>
+                </select>
             </div>
+
             <div class="mb-3">
                 <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
                 <input type="date" class="form-control" id="tanggal_mulai" name="tanggal_mulai" required>

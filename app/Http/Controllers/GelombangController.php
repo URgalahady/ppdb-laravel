@@ -8,63 +8,90 @@ use Illuminate\Http\Request;
 class GelombangController extends Controller
 {
     // Tampilkan semua gelombang
-    public function index() // Menampilkan semua data gelombang dari database
+    public function index()
     {
-        $gelombangs = Gelombang::all(); // Ambil semua record dari tabel gelombang
-        return view('admin.gelombang.index', compact('gelombangs')); // Kirim data ke view
+        $gelombangs = Gelombang::all();
+        return view('admin.gelombang.index', compact('gelombangs'));
     }
 
     // Simpan gelombang baru
-    public function store(Request $request) // Fungsi untuk menyimpan data gelombang dari form
+    public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required', // Nama wajib diisi
-            'tanggal_mulai' => 'required|date', // Tanggal mulai wajib dan harus bertipe tanggal
-            'tanggal_berakhir' => 'required|date|after:tanggal_mulai' // Tanggal akhir wajib, harus tanggal, dan harus setelah tanggal mulai
+            'nama' => 'required|string|max:255',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_berakhir' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
-        Gelombang::create($request->all()); // Simpan data ke database
+        // Jika checkbox is_active dicentang, nonaktifkan yang lain terlebih dahulu
+        if ($request->has('is_active')) {
+            Gelombang::where('is_active', 1)->update(['is_active' => 0]);
+        }
 
-        return redirect()->route('admin.gelombang.index') // Redirect ke halaman gelombang
-            ->with('success', 'Gelombang berhasil ditambahkan'); // Beri pesan sukses
+        Gelombang::create([
+            'nama' => $request->nama,
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_berakhir' => $request->tanggal_berakhir,
+            'is_active' => $request->has('is_active'),
+        ]);
+
+        return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil ditambahkan');
     }
 
-    // Toggle status aktif
-    public function toggleAktif($id, $request ) // Fungsi untuk mengubah status aktif gelombang (aktif/nonaktif)
+    // Toggle status aktif gelombang
+    public function toggleAktif($id)
     {
-        // Aktifkan/nonaktifkan gelombang ini
-        $gelombang = Gelombang::find($id); // Cari gelombang berdasarkan ID
-        $gelombang->is_active = $request; // Ubah status aktif berdasarkan input (1/0 atau true/false)
-        $gelombang->save(); // Simpan perubahan
+        $gelombang = Gelombang::findOrFail($id);
 
-        return back()->with('success', 'Status gelombang berhasil diubah'); // Kembali ke halaman sebelumnya
+        // Nonaktifkan semua gelombang dulu
+        Gelombang::where('is_active', true)->update(['is_active' => false]);
+
+        // Aktifkan gelombang ini
+        $gelombang->is_active = true;
+        $gelombang->save();
+
+        return redirect()->back()->with('success', 'Gelombang berhasil diaktifkan.');
     }
 
-    public function destroy($id) // Fungsi untuk menghapus gelombang dari database
+    // Hapus gelombang
+    public function destroy($id)
     {
         try {
-            $gelombang = Gelombang::findOrFail($id); // Cari gelombang berdasarkan ID, jika tidak ditemukan akan error
+            $gelombang = Gelombang::findOrFail($id);
 
-            // Cek jika gelombang aktif
-            if ($gelombang->is_active) { // Jika gelombang masih aktif, tidak boleh dihapus
-                return redirect()->back()
-                       ->with('error', 'Tidak bisa menghapus gelombang yang sedang aktif!');
+            if ($gelombang->is_active) {
+                return redirect()->back()->with('error', 'Tidak bisa menghapus gelombang yang sedang aktif!');
             }
 
-            // Cek jika ada pendaftaran
-            if ($gelombang->pendaftarans()->exists()) { // Jika ada pendaftar terkait gelombang ini, tidak boleh dihapus
-                return redirect()->back()
-                       ->with('error', 'Tidak bisa menghapus karena sudah ada pendaftaran!');
+            if ($gelombang->pendaftarans()->exists()) {
+                return redirect()->back()->with('error', 'Tidak bisa menghapus karena sudah ada pendaftaran!');
             }
 
-            $gelombang->delete(); // Hapus data gelombang dari database
+            $gelombang->delete();
 
-            return redirect()->route('admin.gelombang.index') // Kembali ke halaman index
-                   ->with('success', 'Gelombang berhasil dihapus'); // Beri pesan sukses
-
-        } catch (\Exception $e) { // Jika ada error saat penghapusan
-            return redirect()->back()
-                   ->with('error', 'Gagal menghapus: ' . $e->getMessage()); // Tampilkan pesan error
+            return redirect()->route('admin.gelombang.index')->with('success', 'Gelombang berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
+    public function update(Request $request, $id)
+{
+    // Validasi input untuk nama gelombang
+    $request->validate([
+        'nama' => 'required|string|max:255',
+    ]);
+
+    // Cari gelombang berdasarkan ID
+    $gelombang = Gelombang::findOrFail($id);
+
+    // Perbarui hanya nama gelombang
+    $gelombang->nama = $request->nama;
+
+    // Simpan perubahan ke database
+    $gelombang->save();
+
+    // Redirect ke halaman index dengan pesan sukses
+    return redirect()->route('admin.gelombang.index')->with('success', 'Nama Gelombang berhasil diperbarui');
+}
+
 }

@@ -26,14 +26,14 @@
                 @foreach($gelombangs as $gelombang)
                 <tr>
                     <td>{{ $gelombang->nama }}</td>
-                   <td>
+                    <td>
                         {{ \Carbon\Carbon::parse($gelombang->tanggal_mulai)->format('d M Y') }} - 
                         {{ \Carbon\Carbon::parse($gelombang->tanggal_berakhir)->format('d M Y') }}
-                        
                     </td>
                     <td>
-                        <span class="btn btn-sm {{ $gelombang->is_active ? 'btn-success' : 'btn-secondary' }}">{{ $gelombang->is_active ? 'Aktif' : 'Nonaktif' }}</span>
-                       
+                        <span class="btn btn-sm {{ $gelombang->is_active ? 'btn-success' : 'btn-secondary' }}">
+                            {{ $gelombang->is_active ? 'Aktif' : 'Nonaktif' }}
+                        </span>
                     </td>
                     <td>
                         <a href="{{ route('admin.gelombang.edit', $gelombang->id) }}" class="btn btn-warning btn-sm">

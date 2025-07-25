@@ -50,7 +50,7 @@ class GelombangController extends Controller
             'nama' => 'required|string|max:255',
             'tanggal_mulai' => 'required|date',
             'tanggal_berakhir' => 'required|date|after:tanggal_mulai',
-            'is_active' => 'required'
+            'is_active' => 'required',
         ]);
 
         $gelombang->update($request->all());
@@ -69,16 +69,5 @@ class GelombangController extends Controller
     }
 
     // Toggle status aktif
-    public function toggleAktif($id)
-    {
-        // Nonaktifkan semua gelombang lain
-        Gelombang::where('id', '!=', $id)->update(['is_active' => false]);
-
-        // Toggle status gelombang yang dipilih
-        $gelombang = Gelombang::find($id);
-        $gelombang->is_active = !$gelombang->is_active;
-        $gelombang->save();
-
-        return back()->with('success', 'Status gelombang berhasil diubah');
-    }
+  
 }

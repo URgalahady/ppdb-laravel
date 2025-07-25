@@ -18,10 +18,11 @@ class PendaftaranAdminController extends Controller
             ->latest()
             ->get();
 
-      $gelombangAktif = Gelombang::where('is_active', 1)
-    ->whereDate('tanggal_mulai', '<=', date('Y-m-d'))
-    ->whereDate('tanggal_berakhir', '>=', date('Y-m-d'))
+     $gelombangAktif = Gelombang::where('is_active', 1)
+    ->orderBy('id', 'asc')
     ->get();
+
+        
 
         
         return view('admin.pendaftaran.index', compact('pendaftarans', 'gelombangAktif'));
@@ -103,5 +104,50 @@ public function byGelombang(Request $request)
 
     return view('admin.pendaftaran.byGelombang', compact('pendaftarans', 'gelombangs', 'gelombangId'));
 }
+public function updateStatus(Request $request, $id)
+{
+    // Validasi input status
+    $validated = $request->validate([
+        'status' => 'required|in:menunggu,diterima,ditolak',
+    ]);
+
+    // Ambil data pendaftaran
+    $pendaftaran = Pendaftaran::findOrFail($id);
+    $status = $validated['status'];
+
+    if ($status === 'ditolak') {
+        // Set status ke 'ditolak'
+        $pendaftaran->status = 'ditolak';
+
+        // Cek apakah pendaftar ada di gelombang 1 atau gelombang 2
+        $gelombangs = Gelombang::where('is_active', 1)->orderBy('tanggal_mulai')->get();
+
+        // Cek apakah pendaftar ada di gelombang pertama atau kedua
+        if ($pendaftaran->gelombang_id == $gelombangs[0]->id || $pendaftaran->gelombang_id == $gelombangs[1]->id) {
+            // Arahkan pendaftar ke formulir pendaftaran untuk mengisi ulang (formulir di gelombang berikutnya)
+            $nextGelombang = $gelombangs->first(function ($gelombang) use ($pendaftaran) {
+                return $gelombang->id > $pendaftaran->gelombang_id;
+            });
+
+            if ($nextGelombang) {
+                // Update gelombang pendaftar dan set status ke 'menunggu' lagi
+                $pendaftaran->gelombang_id = $nextGelombang->id;
+                $pendaftaran->status = 'menunggu'; // Reset status ke menunggu untuk pendaftaran ulang
+                $pendaftaran->save();
+
+                // Arahkan user ke halaman formulir untuk mengisi ulang (tanpa menghapus data yang sudah ada)
+                return redirect()->route('formulir.create')
+                    ->with('success', 'Pendaftaran Anda telah ditolak. Silakan mengisi formulir ulang di gelombang berikutnya.');
+            }
+        }
+    }
+
+    // Update status selain 'ditolak'
+    $pendaftaran->status = $status;
+    $pendaftaran->save();
+
+    return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
+}
+    
 // Tampilkan halaman konfirmasi
 }

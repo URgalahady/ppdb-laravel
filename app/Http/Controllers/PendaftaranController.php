@@ -21,10 +21,10 @@ class PendaftaranController extends Controller
 
     // Cek apakah ada gelombang aktif
     $gelombangAktif = Gelombang::where('is_active', 1)
-        ->whereDate('tanggal_mulai', '<=', date('Y-m-d'))
-        ->whereDate('tanggal_berakhir', '>=', date('Y-m-d'))
         ->first();
 
+
+        
     if (!$gelombangAktif) {
         return redirect()->route('home')->with('error', 'Tidak ada gelombang pendaftaran yang aktif saat ini.');
     }
@@ -79,9 +79,7 @@ class PendaftaranController extends Controller
         $user = auth()->user();
 
          
-         $gelombangAktif = Gelombang::where('is_active', 1)
-        ->whereDate('tanggal_mulai', '<=', now())
-        ->whereDate('tanggal_berakhir', '>=', now())
+           $gelombangAktif = Gelombang::where('is_active', 1 )
         ->first();
 
         
@@ -215,57 +213,76 @@ class PendaftaranController extends Controller
     }
 
     return view('pendaftaran.tracking', compact('data'));
-}
+    }
 public function updateStatus(Request $request, $id)
 {
+    // Validasi input status
     $validated = $request->validate([
         'status' => 'required|in:menunggu,diterima,ditolak',
     ]);
 
+    // Ambil data
     $pendaftaran = Pendaftaran::findOrFail($id);
     $status = $validated['status'];
-    
-    
 
-    // Jika status ditolak, periksa gelombang berikutnya yang aktif
+    // Jika statusnya 'ditolak'
     if ($status === 'ditolak') {
-        // Cari gelombang berikutnya yang aktif
+        // Set status ke 'ditolak'
+        $pendaftaran->status = 'ditolak';
+
+        // Cek apakah gelombang yang digunakan adalah gelombang ketiga
+        $gelombangs = Gelombang::where('is_active', 1)->orderBy('tanggal_mulai')->get();
+
+        // Cek apakah sudah ada 3 gelombang aktif
+        if ($gelombangs->count() >= 3) {
+            $gelombangKetiga = $gelombangs->get(2); // Ambil gelombang ketiga (indeks ke-2)
+
+            if ($pendaftaran->gelombang_id == $gelombangKetiga->id) {
+                // Jika pendaftar ada di gelombang ketiga, set status pendaftaran menjadi 'ditolak'
+                $pendaftaran->status = 'ditolak';
+                $pendaftaran->save();
+
+                return redirect()->back()->with('success', 'Pendaftaran Anda telah ditolak di gelombang ketiga.');
+            }
+        }
+
+        // Cari gelombang berikutnya
         $gelombangBerikutnya = Gelombang::where('is_active', 1)
-            ->whereDate('tanggal_mulai', '<=', now())
-            ->whereDate('tanggal_berakhir', '>=', now())
-            ->where('id', '>', $pendaftaran->gelombang_id) // Gelombang setelah gelombang yang sedang digunakan
+            ->where('id', '>', $pendaftaran->gelombang_id)
             ->first();
 
         if ($gelombangBerikutnya) {
-            // Pindahkan pendaftar ke gelombang berikutnya
+            // Pindahkan ke gelombang berikutnya jika masih ada
             $pendaftaran->gelombang_id = $gelombangBerikutnya->id;
         } else {
-            // Jika tidak ada gelombang berikutnya, beri pesan
-            return redirect()->back()->with('error', 'Tidak ada gelombang pendaftaran yang aktif berikutnya.');
+            // Jika tidak ada gelombang aktif berikutnya, status tetap 'ditolak'
+            $pendaftaran->status = 'ditolak';
         }
+    } else {
+        // Set status sesuai input
+        $pendaftaran->status = $status;
     }
 
-    // Update status pendaftaran
-    $pendaftaran->status = $status === 'ditolak' ? 'menunggu' : $status;
     $pendaftaran->save();
 
     return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
-}   
-
-public function updateGelombang(Request $request, $id)
-{
-    $validated = $request->validate([
-        'gelombang_id' => 'required|exists:gelombangs,id',
-    ]);
-
-    $pendaftaran = Pendaftaran::findOrFail($id);
-    $pendaftaran->gelombang_id = $validated['gelombang_id'];
-    $pendaftaran->save();
-
-    return redirect()->back()->with('success', 'Gelombang berhasil diperbarui.');
 }
 
 
 
-}
+        public function updateGelombang(Request $request, $id)
+        {
+            $validated = $request->validate([
+                'gelombang_id' => 'required|exists:gelombangs,id',
+            ]);
 
+            $pendaftaran = Pendaftaran::findOrFail($id);
+            $pendaftaran->gelombang_id = $validated['gelombang_id'];
+            $pendaftaran->save();
+
+            return redirect()->back()->with('success', 'Gelombang berhasil diperbarui.');
+    }
+
+
+
+}
